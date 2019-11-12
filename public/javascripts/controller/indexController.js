@@ -1,7 +1,8 @@
 app.controller("indexController", [
   "$scope",
   "indexFactory",
-  ($scope, indexFactory) => {
+  "configFactory",
+  ($scope, indexFactory,configFactory) => {
     $scope.init = () => {
       const username = prompt("please enter username");
       if (username) initSocket(username);
@@ -33,10 +34,12 @@ app.controller("indexController", [
         reconnectionDelay: 600
       };
 
-      const socket = await indexFactory.connectSocket("http://localhost:3000", {
-        connectionOptions
-      });
+    
       try {
+        const sockerUrl= await configFactory.getConfig();       
+        const socket = await indexFactory.connectSocket(sockerUrl.data.socketUrl, {
+          connectionOptions
+        });
         socket.emit("newUser", { username });
         socket.on("initPlayers", players => {
           $scope.players = players;
